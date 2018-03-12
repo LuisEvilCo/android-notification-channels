@@ -16,6 +16,7 @@
 
 package com.example.android.notificationchannels
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -31,10 +32,12 @@ import java.util.Random
 /**
  * Helper class to manage notification channels, and create notifications.
  */
+@SuppressLint("NewApi")
 internal class NotificationHelper (context: Context) : ContextWrapper(context) {
 
     companion object {
         val FOLLOWERS_CHANNEL = "follower"
+        val DIRECT_MESSAGES = "directMessages"
     }
 
     private val mNotificationManager: NotificationManager by lazy {
@@ -55,9 +58,22 @@ internal class NotificationHelper (context: Context) : ContextWrapper(context) {
         // Configure the channel's initial settings
         followersChannel.lightColor = Color.GREEN
         followersChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 500, 200, 500)
+        followersChannel.setShowBadge(false)
 
         // Submit the notification channel object to the notification manager
         mNotificationManager.createNotificationChannel(followersChannel)
+
+        val directMessagesChannel = NotificationChannel(
+            DIRECT_MESSAGES,
+            getString(R.string.direct_message_title_notification),
+            NotificationManager.IMPORTANCE_HIGH
+        )
+
+        directMessagesChannel.lightColor = Color.BLUE
+        directMessagesChannel.setShowBadge(true)
+
+        mNotificationManager.createNotificationChannel(directMessagesChannel)
+
 
     }
 
@@ -74,7 +90,7 @@ internal class NotificationHelper (context: Context) : ContextWrapper(context) {
      * @return A Notification.Builder configured with the selected channel and details
      */
     fun getNotificationFollower(title: String, body: String): Notification.Builder {
-        return Notification.Builder(applicationContext)
+        return Notification.Builder(applicationContext, FOLLOWERS_CHANNEL)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setSmallIcon(smallIcon)
@@ -95,7 +111,7 @@ internal class NotificationHelper (context: Context) : ContextWrapper(context) {
      * @return A Notification.Builder configured with the selected channel and details
      */
     fun getNotificationDM(title: String, body: String): Notification.Builder {
-        return Notification.Builder(applicationContext)
+        return Notification.Builder(applicationContext, DIRECT_MESSAGES)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setSmallIcon(smallIcon)
